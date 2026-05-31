@@ -1,7 +1,10 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 import os
 import requests
 from datetime import datetime
+
+from broker_test import test_forex_login
 
 app = FastAPI()
 
@@ -16,14 +19,17 @@ def send_telegram_message(text):
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
-    requests.post(
-        url,
-        json={
-            "chat_id": TELEGRAM_CHAT_ID,
-            "text": text
-        },
-        timeout=10
-    )
+    try:
+        requests.post(
+            url,
+            json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": text
+            },
+            timeout=10
+        )
+    except Exception as e:
+        print("Telegram error:", str(e))
 
 @app.get("/")
 def home():
@@ -53,3 +59,8 @@ async def webhook(request: Request):
         "ok": True,
         "action": action
     }
+
+@app.get("/broker-test")
+async def broker_test():
+    result = await test_forex_login()
+    return JSONResponse(result)
