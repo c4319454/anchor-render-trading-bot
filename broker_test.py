@@ -23,16 +23,21 @@ async def test_forex_login():
 
         try:
             await page.goto(FOREX_LOGIN_URL, wait_until="domcontentloaded", timeout=60000)
+            await page.wait_for_timeout(10000)
 
             title = await page.title()
+            url = page.url
+            body_text = await page.locator("body").inner_text(timeout=10000)
 
             await browser.close()
 
             return {
                 "ok": True,
-                "stage": "page_loaded",
+                "stage": "page_checked",
                 "title": title,
-                "note": "FOREX.com login page loaded. No login submitted yet."
+                "url": url,
+                "body_preview": body_text[:500],
+                "note": "Checked what FOREX.com shows to Render browser. No login submitted."
             }
 
         except Exception as e:
